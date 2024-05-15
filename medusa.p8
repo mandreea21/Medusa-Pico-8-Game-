@@ -1,9 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
--- initialize game state
 function _init()
-    -- load map and set initial player position
     load_map()
     player = {x = 8, y = 8, dx = 0, dy = 0, score = 0, on_ground = false}
     gravity = 0.2
@@ -17,9 +15,7 @@ function _init()
     
 end
 
--- update game state
 function _update()
-    -- apply gravity
     player.dy += gravity
     player.on_ground = false
     
@@ -50,7 +46,7 @@ function _update()
     
     -- shooting bullets
     if btnp(4) then -- button 4 is usually the z key
-        spawn_bullet(player.x + 4, player.y + 4, 1) -- adjust position as needed
+        spawn_bullet(player.x + 4, player.y + 4, 1) 
     end
     
     -- update bullets
@@ -61,7 +57,6 @@ function _update()
         -- check for collision with enemies
         for enemy in all(enemies) do
             if abs(bullet.x - enemy.x) < 8 and abs(bullet.y - enemy.y) < 8 then
-                -- mark bullet for removal
                 bullet.remove = true
                 player.score += 50
                 break
@@ -76,71 +71,64 @@ function _update()
         end
     end
     
-    -- update enemies
+   
     for enemy in all(enemies) do
-        -- update enemy position based on pattern (example: back-and-forth)
         enemy.x += enemy.dir
-        if enemy.x < 8 or enemy.x > 120 then enemy.dir = -enemy.dir end
-        -- check collision with player
+        if enemy.x < 8 or enemy.x > 120 then 
+            enemy.dir = -enemy.dir 
+        end
+       
         if abs(player.x - enemy.x) < 8 and abs(player.y - enemy.y) < 8 then
-            -- handle game over or player damage
-            _init() -- restart game for simplicity
+            _init() 
         end
     end
     
     -- check if all treasures collected and player reached exit
     if #treasures == 0 and abs(player.x - exit.x) < 8 and abs(player.y - exit.y) < 8 then
-        -- level complete (for simplicity, just restart)
+
         _init()
     end
 end
 
 
 
--- draw game state
 function _draw()
     cls()
 
-    -- draw map, player, enemies, etc.
-    -- draw map
+   
     draw_map()
-    -- draw player
+   
     spr(1, player.x, player.y)
-    -- draw treasures
+   
     for t in all(treasures) do
         spr(2, t.x, t.y)
     end
-    -- draw enemies
+   
     for e in all(enemies) do
         spr(3, e.x, e.y)
     end
     
-    -- draw bullets
     for bullet in all(bullets) do
-        -- draw the bullet sprite at the bullet's position
+        
         local sprite_attack = 6 + rnd(4) 
         spr(sprite_attack, bullet.x, bullet.y)
     end
 end
 
--- helper function to load the map
+
 function load_map()
-    -- draw the map on the screen
-    -- assuming the map size is 16x16 tiles
     map(0, 0, 0, 0, 16, 16)
 end
 
--- helper function to check for wall collision
 function is_wall(x, y)
-    -- check if the tile at (x, y) is a wall
-    -- assume walls have sprite index 16 (or whatever index you use for walls)
+   
     local tile_x = flr(x / 8)
     local tile_y = flr(y / 8)
     local tile = mget(tile_x, tile_y)
     return tile == 16
 end
 
--- helper function to spawn bullets
+
 function spawn_bullet(x, y, direction)
     local bullet = {
         x = x,
@@ -153,10 +141,10 @@ function spawn_bullet(x, y, direction)
 end
 
 function draw_map()
-    -- draw the map on the screen
-    -- assuming the map size is 16x16 tiles
     map(0, 0, 0, 0, 16, 16)
 end
+
+
 __gfx__
 00000000300303030000000000000000000f00007777777700000000000000000033300000000000000000000000000000000000000000000000000000000000
 00000000333333330066000000600000ffffffff7677777700000000003330003330333000000000000000000000000000000000000000000000000000000000
