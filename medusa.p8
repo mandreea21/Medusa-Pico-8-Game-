@@ -5,11 +5,11 @@ __lua__
 function _init()
 				scene = "menu"
     load_map()
-    player = {x = 20, y = 100, dx = 0, dy = 0, score = 0, on_ground = false}
+    player = {x = 20, y = 100, dx = 0, dy = 0, score = 0, on_ground = false, facing_left}
     gravity = 0.2
     jump_strength = -2.8
-    move_speed = 1
-    bullet_speed = 2
+    move_speed = 2
+    bullet_speed = 4
     bullets = {}
     treasures = {{x = 40, y = 40}, {x = 80, y = 24}}
     enemies = {{x = 50, y = 102, dir = 1},
@@ -131,13 +131,21 @@ end
 -->8
 -- game
 function game_on()
-				player.dy += gravity
+    player.dy += gravity
     player.on_ground = false
-    
+
     -- player movement
-    if btn(0) then player.dx = -move_speed end -- left
-    if btn(1) then player.dx = move_speed end -- right
-    if not btn(0) and not btn(1) then player.dx = 0 end -- no horizontal movement
+    if btn(0) then 
+        player.dx = -move_speed 
+        player.facing_left = true
+    end -- left
+    if btn(1) then 
+        player.dx = move_speed 
+        player.facing_left = false
+    end -- right
+    if not btn(0) and not btn(1) then 
+        player.dx = 0 
+    end -- no horizontal movement
 
     -- horizontal collision detection
     player.x += player.dx
@@ -161,7 +169,8 @@ function game_on()
     
     -- shooting bullets
     if btnp(4) then 
-        spawn_bullet(player.x + 4, player.y + 4, 1) 
+        local bullet_dx = player.facing_left and -1 or 1
+        spawn_bullet(player.x + 4, player.y + 4, bullet_dx)
     end
     
     -- update bullets
@@ -205,18 +214,21 @@ function game_on()
     
     -- check if all treasures collected and player reached exit
     if #treasures == 0 and abs(player.x - exit.x) < 8 and abs(player.y - exit.y) < 8 then
-        
         _init()
     end
 end
 
-
 function draw_game()
-				cls()
+    cls()
     draw_map()
-   
-    spr(1, player.x, player.y)
-   
+    
+    -- draw player
+    if player.facing_left then
+        spr(1, player.x, player.y, 1, 1, true) -- true flips the sprite horizontally
+    else
+        spr(1, player.x, player.y)
+    end
+
     for t in all(treasures) do
         spr(2, t.x, t.y)
     end
@@ -245,10 +257,11 @@ function draw_game()
         spr(20, stone.x, stone.y)
     end
     
-    
-    print("score: " .. player.score, 1, 1, 7) -- display score at the top-left corner in color 7 (white)
+    print("score: " .. player.score, 50, 1, 10) -- display score at the top-left corner in color 7 (white)
 end
-    
+
+
+
 -->8
 -- menu
 function menu_on()
